@@ -94,15 +94,67 @@ var response = http.get(link,function(response){
 */
 
 
+/*
+var bl = require('bl');
+var http = require('http');
+var link0 = process.argv[2];
+var link1 = process.argv[3];
+var link2 = process.argv[4];
+
+var done = ["","",""];
+var workerDone = 0;
+
+var response0 = http.get(link0,function(response){
+	response.pipe(bl(function(err,data){
+		if(err) throw err;
+		data = data.toString();
+		done[0] = data;
+	}));
+});
 
 
 
+var response1 = http.get(link1,function(response){
+	response.pipe(bl(function(err,data){
+		if(err) throw err;
+		data = data.toString();
+		done[1] = data;
+	}));
+});
 
 
+var response2 = http.get(link2,function(response){
+	response.pipe(bl(function(err,data){
+		if(err) throw err;
+		data = data.toString();
+		done[2] = data;
+	}));
+});
 
 
+var stop = setInterval(
+	function(){
+		if(workerDone > 2)
+		{
+			abort();
+		}
+		else if (done[workerDone] != "")
+		{
+			console.log(done[workerDone]);
+			workerDone++;
+		}
+	},0);
 
 
+function abort()
+{
+	clearInterval(stop);
+}
+
+*/
+
+
+var net = require('net');
 
 
 
