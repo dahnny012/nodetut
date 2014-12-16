@@ -153,18 +153,92 @@ function abort()
 
 */
 
-
+//console.log(process.argv);
+//
+//
+/*
+var date = require('strftime');
 var net = require('net');
+var port = process.argv[2];
+var server = net.createServer(function(socket){
+	var current = date('%Y-%m-%d %H:%M\n');
+	socket.write(current);
+	socket.end();
+	
+});
+server.listen(port);
+*/
 
 
 
+/*
+var http = require('http');
+var port = process.argv[2];
+var link = process.argv[3];
+var fs = require('fs');
+var server = http.createServer(function(request,response){
+	response.writeHead(200,{'content-type':'text/plain'});
+	var file = fs.createReadStream(link);
+	file.pipe(response);
+});
+server.listen(port);
+*/
+
+
+/*
+var http = require('http');
+var port = process.argv[2];
 
 
 
+var server = http.createServer(function(req,res){
+	if(req['method'] !== 'POST')
+	{
+		console.log("POST Only");
+		res.writeHead(200,{'content-type':'text/plain'});
+		res.write("POST ONLY");
+	}
+	else
+	{
+		var map = require('through2-map')                                                                                                                                                                                              
+    	req.pipe(map(function (chunk) {                                                                                                                                                                                           			return chunk.toString().toLocaleUpperCase();                                                                                                                                                                      
+    	})).pipe(res); 
+	}
+	
+});
+server.listen(port);
+*/
 
-
-
-
+var http = require('http');
+var port = process.argv[2];
+var url = require('url');
+var dateFormat = require('strftime');
+var server = http.createServer(function(req,res){
+	if(req['method'] == 'GET')
+	{
+		var link = req['url'];
+		var linkData = url.parse(link);
+		var api = linkData['pathname'];
+		//console.log(api);
+		if(api == '/api/parsetime'){
+			var iso = linkData['query'];
+			var time = dateFormat("{\n\t\"hour\": %H,\n\t\"minute\": %M,\n\t\"second\": %S\n}",iso);
+			//console.log(time);
+			res.writeHead(200,{'content-type':'text/plain'});
+			res.write(time);
+			return;
+		}
+		else if(api == '/api/unixtime'){
+			var date = new Date();
+			var data ={'unixtime':date.getTime()};
+			var json = JSON.stringify(data);
+			res.writeHead(200,{'content-type':'text/plain'});
+			res.write(json);
+			return;
+		}
+	}
+});
+server.listen(port);
 
 
 
