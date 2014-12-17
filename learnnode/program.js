@@ -226,6 +226,7 @@ var server = http.createServer(function(req,res){
 			//console.log(time);
 			res.writeHead(200,{'content-type':'text/plain'});
 			res.write(time);
+			res.end();
 			return;
 		}
 		else if(api == '/api/unixtime'){
@@ -234,6 +235,7 @@ var server = http.createServer(function(req,res){
 			var json = JSON.stringify(data);
 			res.writeHead(200,{'content-type':'text/plain'});
 			res.write(json);
+			res.end();
 			return;
 		}
 	}
