@@ -1,7 +1,10 @@
 // Modules
 var fs = require("fs");
 var through = require("through");
-var split = require("split")
+var split = require("split");
+var concat = require("concat-stream");
+var http = require("http");
+var socket = require("websocket-stream");
 
 // Stream A File to stdout
 function HowToStreamBasic(){
@@ -52,18 +55,50 @@ function evenOddLines()
 	process.stdin.pipe(split()).pipe(tr).pipe(process.stdout);
 }
 
-evenOddLines();
+function reverseConcat()
+{
+	process.stdin.pipe(concat(function (data) {
+		var obj = data.toString();
+		obj = obj.split("").reverse().join("");
+		console.log(obj);
+	}))
+}
+
+function httpServer()
+{
+	var port = process.argv[2];
+	
+	http.createServer(function(req,res){
+		if(req.method == "POST")
+		{
+			req.pipe(through(
+			function write(buf){
+				this.queue(buf.toString().toUpperCase());
+			})).pipe(res);		
+		}
+		else
+		{
+			res.end()
+		}
+	}).listen(port);
+}
+
+function httpClient()
+{
+	var request = require("request");
+	var local = "http://localhost:8000";
+	var post = request.post(local);
+	process.stdin.pipe(post);
+	post.pipe(process.stdout);
+}
 
 
+function websockets()
+{
+	var stream = socket("ws://localhost:8000");
+	stream.end("hello\n");
+}
 
-
-
-
-
-
-
-
-
-
+websockets();
 
 
