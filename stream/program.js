@@ -7,8 +7,9 @@ var http = require("http");
 var socket = require("websocket-stream");
 var trumpet = require("trumpet");
 var duplex = require("duplexer");
-
-
+var combine = require("stream-combiner");
+var zlib = require('zlib');
+var crypto = require("crypto");
 
 // Stream A File to stdout
 function HowToStreamBasic(){
@@ -144,6 +145,88 @@ function duplex_redux(){
 		}
 	}
 }
+
+
+function JSONparseGzip(){
+	module.exports = function(){
+		var grouper = through(write,end);
+		var list = {};
+		var current;
+		function write(buffer)
+		{
+			if(buffer === 0) return;
+			buffer = JSON.parse(buffer);
+			if(buffer.type === "genre")
+			{
+				if(current != undefined)
+				{
+					this.queue(JSON.stringify(current) + "\n");
+				}
+				current = {name:buffer.name,books:[]}; 
+			}
+			else{
+				if(current != undefined)
+				{
+					current.books.push(buffer.name);
+				}
+			}
+		}
+		
+		// last line
+		function end(buffer)
+		{
+			if(current)
+			{
+				this.queue(JSON.stringify(current) + "\n");
+			}
+			this.queue(null);
+		}
+
+		return combine(grouper,zlib.createGzip());
+	};
+};
+
+
+
+
+function decrypt(){
+
+	var passphrase = process.argv[2];
+	var stream = crypto.createDecipher('aes256',passphrase);
+	process.stdin.pipe(stream).pipe(process.stdout);
+}
+
+
+function Secretz()
+{
+	var password =
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
