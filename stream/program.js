@@ -5,6 +5,10 @@ var split = require("split");
 var concat = require("concat-stream");
 var http = require("http");
 var socket = require("websocket-stream");
+var trumpet = require("trumpet");
+var duplex = require("duplexer");
+
+
 
 // Stream A File to stdout
 function HowToStreamBasic(){
@@ -95,10 +99,51 @@ function httpClient()
 
 function websockets()
 {
-	var stream = socket("ws://localhost:8000");
+	var stream = socket("ws://effect-victor.codio.io:8000/");
 	stream.end("hello\n");
 }
 
-websockets();
+function htmlStream()
+{
+	var tr = trumpet();
+	
+	//Captures .loud elements and messes with it and restreams it.
+	var capture = tr.select(".loud").createStream();
+	stream.pipe(through(function(buf){
+		this.queue(buf.toString().toUpperCase());
+	})).pipe(capture);
+	
+	process.stdin.pipe(tr).pipe(process.stdout);
+}
+
+function duplexer(){
+	module.exports = function(cmd,args){
+		var spawn = require("child_process").spawn;
+		var child = spawn(cmd,args)
+		return duplex(child.stdin,child.stdout);
+	}
+}
+
+function duplex_redux(){
+	module.exports = function(counter){
+		var count = {};
+		return  duplex(through(write,end),counter)
+		function write(buf)
+		{
+			country = buf.country;
+			if(count[country] == undefined){
+				count[country] = 1;
+			}
+			else{
+				count[country]++;	
+			}
+		}
+		function end()
+		{
+			counter.setCounts(count);
+		}
+	}
+}
+
 
 
