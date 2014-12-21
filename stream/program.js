@@ -10,6 +10,7 @@ var duplex = require("duplexer");
 var combine = require("stream-combiner");
 var zlib = require('zlib');
 var crypto = require("crypto");
+var tar = require('tar');
 
 // Stream A File to stdout
 function HowToStreamBasic(){
@@ -190,17 +191,38 @@ function JSONparseGzip(){
 
 
 function decrypt(){
-
 	var passphrase = process.argv[2];
 	var stream = crypto.createDecipher('aes256',passphrase);
 	process.stdin.pipe(stream).pipe(process.stdout);
 }
 
 
-function Secretz()
+function secretz()
 {
-	var password =
+	var password = process.argv[3];
+	var algorithm = process.argv[2];
+	var zipStream = zlib.createGunzip();
+	var parser = tar.Parse();
+	
+	// Each file
+	parser.on('entry',function(e){
+		if(e.type == "File")
+		{
+			var hashStream = crypto.createHash('md5',{encoding:'hex'});
+			
+			e.pipe(hashStream).pipe(through(function(buf){
+				this.queue(buf.toString() +" "+e.path + "\n");
+			})).pipe(process.stdout);
+		}
+	});
+	
+	var decryptStream = crypto.createDecipher(algorithm,password);
+	process.stdin.pipe(decryptStream)
+	.pipe(zipStream)
+	.pipe(parser);
 }
+
+secretz();
 
 
 
