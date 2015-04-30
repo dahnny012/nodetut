@@ -1,2 +1,2 @@
-nodetut
+http://nodeschool.io/
 =======
